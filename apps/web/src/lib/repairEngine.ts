@@ -1,4 +1,4 @@
-import {
+﻿import {
   DEVICE_CATALOG,
   ISSUE_CATALOG,
   STAGE_LABELS,
@@ -43,6 +43,10 @@ const STAGE_FRACTIONS: number[] = [0, 0.12, 0.3, 0.76, 0.9, 1]
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value))
+}
+
+function isKnownStage(stage: string): stage is TicketStage {
+  return STAGE_ORDER.includes(stage as TicketStage)
 }
 
 function roundToStep(value: number, step = 100): number {
@@ -201,13 +205,13 @@ export function createTicket(
   const notes: string[] = []
 
   if (request.hasWarranty) {
-    notes.push('Часть работ будет покрыта гарантией после верификации документов.')
+    notes.push('Warranty coverage is verified after diagnostics and document check.')
   }
   if (request.urgency === 'express') {
-    notes.push('Экспресс-линия: диагностика запускается вне общей очереди.')
+    notes.push('Express lane enabled: diagnostics starts outside the standard queue.')
   }
   if (request.issueType === 'water') {
-    notes.push('После контакта с влагой итоговая стоимость уточняется после вскрытия.')
+    notes.push('Liquid damage jobs can change after internal teardown and corrosion inspection.')
   }
 
   return {
@@ -226,6 +230,17 @@ export function getTrackingSnapshot(
   ticket: ServiceTicket,
   now = new Date(),
 ): TrackingSnapshot {
+  if (ticket.currentStage && isKnownStage(ticket.currentStage)) {
+    const currentStage = ticket.currentStage
+
+    return {
+      stage: currentStage,
+      stageLabel: STAGE_LABELS[currentStage],
+      progress: STAGE_ORDER.indexOf(currentStage) / (STAGE_ORDER.length - 1),
+      etaDate: ticket.timeline[ticket.timeline.length - 1].plannedAt,
+    }
+  }
+
   const createdAt = new Date(ticket.createdAt).getTime()
   const readyAt = new Date(ticket.timeline[ticket.timeline.length - 1].plannedAt).getTime()
   const nowMs = now.getTime()
@@ -262,3 +277,5 @@ export function matchTicket(
     ticket.accessCode === sanitizeAccessCode(accessCode)
   )
 }
+
+export const TICKET_STAGE_ORDER = STAGE_ORDER

@@ -1,55 +1,37 @@
-export type DeviceType =
-  | 'smartphone'
-  | 'laptop'
-  | 'tablet'
-  | 'console'
-  | 'tv'
-  | 'audio'
+export const DEVICE_TYPES = [
+  'smartphone',
+  'laptop',
+  'tablet',
+  'console',
+  'tv',
+  'audio',
+] as const
 
-export type IssueType =
-  | 'screen'
-  | 'battery'
-  | 'charging'
-  | 'water'
-  | 'overheat'
-  | 'software'
-  | 'motherboard'
+export const ISSUE_TYPES = [
+  'screen',
+  'battery',
+  'charging',
+  'water',
+  'overheat',
+  'software',
+  'motherboard',
+] as const
 
-export type UrgencyType = 'standard' | 'priority' | 'express'
+export const URGENCY_TYPES = ['standard', 'priority', 'express'] as const
 
-export type TicketStage =
-  | 'accepted'
-  | 'diagnostics'
-  | 'approval'
-  | 'repair'
-  | 'quality'
-  | 'ready'
+export const TICKET_STAGES = [
+  'accepted',
+  'diagnostics',
+  'approval',
+  'repair',
+  'quality',
+  'ready',
+] as const
 
-export interface DeviceCatalogItem {
-  id: DeviceType
-  label: string
-  categoryNote: string
-  baseDiagnosticFee: number
-  baseLaborRate: number
-  baseHours: number
-  partsRiskFactor: number
-}
-
-export interface IssueCatalogItem {
-  id: IssueType
-  label: string
-  complexity: number
-  extraHours: number
-  partsReserve: number
-}
-
-export interface UrgencyPolicy {
-  id: UrgencyType
-  label: string
-  details: string
-  priceMultiplier: number
-  timeMultiplier: number
-}
+export type DeviceType = (typeof DEVICE_TYPES)[number]
+export type IssueType = (typeof ISSUE_TYPES)[number]
+export type UrgencyType = (typeof URGENCY_TYPES)[number]
+export type TicketStage = (typeof TICKET_STAGES)[number]
 
 export interface ServiceRequestInput {
   customerName: string
@@ -95,6 +77,7 @@ export interface ServiceTicket {
   ticketNumber: string
   accessCode: string
   createdAt: string
+  currentStage?: TicketStage
   request: ServiceRequestInput
   estimate: RepairEstimate
   timeline: TimelineStep[]

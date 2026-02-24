@@ -1,6 +1,6 @@
-import type { ServiceTicket } from '../types/domain.ts'
+﻿import type { ServiceTicket } from '../types/domain.ts'
 
-const STORAGE_KEY = 'fixlab.tickets.v2'
+const STORAGE_KEY = 'fixlab.tickets.v3'
 
 function isTicketLike(value: unknown): value is ServiceTicket {
   if (!value || typeof value !== 'object') {
