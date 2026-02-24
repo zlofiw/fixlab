@@ -52,8 +52,8 @@ export function HomePage() {
             FixLab ремонтирует электронику с прозрачной логикой по срокам и цене.
           </h1>
           <p className="mt-6 max-w-2xl text-base font-medium leading-relaxed text-slate-600 md:text-lg">
-            Учебный, но реалистичный сайт сервисного центра: прием заявок, оценка стоимости, расчет
-            очереди и трекинг каждого заказа по номеру.
+            Реалистичный сайт сервисного центра: прием заявок, оценка стоимости, расчет очереди и
+            трекинг каждого заказа по номеру.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
@@ -75,7 +75,7 @@ export function HomePage() {
           <h2 className="font-display text-2xl font-bold text-slate-900">Операционная панель</h2>
           <p className="mt-2 text-sm font-medium text-slate-600">
             Модель учитывает загрузку мастерской и срочность. Все данные ниже вычисляются на основе
-            заявок в браузере.
+            заявок из API.
           </p>
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             <div className="rounded-2xl border border-cyan-100 bg-cyan-50/80 p-4">

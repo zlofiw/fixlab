@@ -1,7 +1,7 @@
-﻿import { createContext } from 'react'
+import { createContext } from 'react'
 import type { ServiceRequestInput, ServiceTicket, TicketStage } from '../types/domain.ts'
 
-export type DataSource = 'api' | 'local'
+export type DataSource = 'api'
 
 export interface TicketsContextValue {
   tickets: ServiceTicket[]
@@ -10,9 +10,12 @@ export interface TicketsContextValue {
   apiAvailable: boolean
   dataSource: DataSource
   errorMessage: string | null
+  isAuthorized: boolean
+  login: (username: string, password: string) => Promise<void>
+  logout: () => void
   refreshTickets: () => Promise<void>
   createRequest: (request: ServiceRequestInput) => Promise<ServiceTicket>
-  findTicket: (ticketNumber: string, accessCode: string) => ServiceTicket | null
+  findTicket: (ticketNumber: string, accessCode: string) => Promise<ServiceTicket | null>
   updateTicketStage: (ticketId: string, stage: TicketStage) => Promise<ServiceTicket | null>
 }
 

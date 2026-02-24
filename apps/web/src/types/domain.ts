@@ -108,3 +108,21 @@ export interface TrackingSnapshot {
   progress: number
   etaDate: string
 }
+
+export interface AdminSummary {
+  total: number
+  active: number
+  ready: number
+  express: number
+  totalAmount: number
+  stageCounts: Record<TicketStage, number>
+}
+
+
+export interface Review {
+  id: string
+  customer_name: string
+  rating: number
+  comment: string
+  created_at: string
+}

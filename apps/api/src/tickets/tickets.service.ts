@@ -1,16 +1,23 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { DEVICE_TYPES, ISSUE_TYPES, TICKET_STAGES, URGENCY_TYPES } from '../domain'
 import type { ServiceRequestInput, ServiceTicket, TicketStage } from '../domain'
-import { createTicket, getTrackingSnapshot, isTicketReady, matchTicket, seedDemoTickets } from '../repair-engine'
+import { createTicket, getTrackingSnapshot, isTicketReady, matchTicket } from '../repair-engine'
+import { DbService } from '../db.service'
+
+interface TicketRow {
+  id: string
+  ticket_json: string
+  created_at: string
+}
 
 @Injectable()
 export class TicketsService {
-  private tickets: ServiceTicket[] = seedDemoTickets()
+  constructor(private readonly dbService: DbService) {}
 
   list(search?: string, stage?: string) {
     const query = search?.trim().toLowerCase() ?? ''
 
-    return this.tickets.filter((ticket) => {
+    return this.readAllTickets().filter((ticket) => {
       const snapshot = getTrackingSnapshot(ticket)
 
       if (stage && stage !== 'all' && snapshot.stage !== stage) {
@@ -36,7 +43,7 @@ export class TicketsService {
   }
 
   getById(id: string) {
-    const ticket = this.tickets.find((item) => item.id === id)
+    const ticket = this.readAllTickets().find((item) => item.id === id)
     if (!ticket) {
       throw new NotFoundException('Ticket not found')
     }
@@ -44,7 +51,7 @@ export class TicketsService {
   }
 
   lookup(ticketNumber: string, accessCode: string) {
-    const ticket = this.tickets.find((item) => matchTicket(item, ticketNumber, accessCode))
+    const ticket = this.readAllTickets().find((item) => matchTicket(item, ticketNumber, accessCode))
     if (!ticket) {
       throw new NotFoundException('Ticket not found')
     }
@@ -53,9 +60,17 @@ export class TicketsService {
 
   create(payload: ServiceRequestInput) {
     const request = this.normalizeRequest(payload)
-    const openCount = this.tickets.filter((ticket) => !isTicketReady(ticket)).length
+    const allTickets = this.readAllTickets()
+    const openCount = allTickets.filter((ticket) => !isTicketReady(ticket)).length
     const created = createTicket(request, openCount)
-    this.tickets = [created, ...this.tickets]
+
+    const db = this.dbService.connection()
+    db.prepare('INSERT INTO tickets (id, ticket_json, created_at) VALUES (?, ?, ?)').run(
+      created.id,
+      JSON.stringify(created),
+      created.createdAt,
+    )
+
     return created
   }
 
@@ -64,17 +79,17 @@ export class TicketsService {
       throw new BadRequestException('Invalid stage')
     }
 
-    const index = this.tickets.findIndex((ticket) => ticket.id === id)
-    if (index < 0) {
-      throw new NotFoundException('Ticket not found')
-    }
+    const current = this.getById(id)
+    const next = { ...current, currentStage: stage }
 
-    const next = { ...this.tickets[index], currentStage: stage }
-    this.tickets = this.tickets.map((ticket, itemIndex) => (itemIndex === index ? next : ticket))
+    const db = this.dbService.connection()
+    db.prepare('UPDATE tickets SET ticket_json = ? WHERE id = ?').run(JSON.stringify(next), id)
+
     return next
   }
 
   adminSummary() {
+    const allTickets = this.readAllTickets()
     const stageCounts: Record<TicketStage, number> = {
       accepted: 0,
       diagnostics: 0,
@@ -87,7 +102,7 @@ export class TicketsService {
     let totalAmount = 0
     let express = 0
 
-    for (const ticket of this.tickets) {
+    for (const ticket of allTickets) {
       const snapshot = getTrackingSnapshot(ticket)
       stageCounts[snapshot.stage] += 1
       totalAmount += ticket.estimate.pricing.total
@@ -97,13 +112,22 @@ export class TicketsService {
     }
 
     return {
-      total: this.tickets.length,
-      active: this.tickets.length - stageCounts.ready,
+      total: allTickets.length,
+      active: allTickets.length - stageCounts.ready,
       ready: stageCounts.ready,
       express,
       totalAmount,
       stageCounts,
     }
+  }
+
+  private readAllTickets() {
+    const db = this.dbService.connection()
+    const rows = db
+      .prepare('SELECT id, ticket_json, created_at FROM tickets ORDER BY created_at DESC')
+      .all() as unknown as TicketRow[]
+
+    return rows.map((row) => JSON.parse(row.ticket_json) as ServiceTicket)
   }
 
   private normalizeRequest(payload: ServiceRequestInput): ServiceRequestInput {

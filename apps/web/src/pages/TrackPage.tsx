@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { SectionHeading } from '../components/SectionHeading.tsx'
 import { StatusPill } from '../components/StatusPill.tsx'
@@ -18,16 +18,22 @@ export function TrackPage() {
   const initialAccessCode = searchParams.get('code') ?? ''
   const [ticketNumber, setTicketNumber] = useState(initialTicketNumber)
   const [accessCode, setAccessCode] = useState(initialAccessCode)
-  const [selectedTicket, setSelectedTicket] = useState<ServiceTicket | null>(() =>
-    initialTicketNumber && initialAccessCode
-      ? findTicket(initialTicketNumber, initialAccessCode)
-      : null,
-  )
+  const [selectedTicket, setSelectedTicket] = useState<ServiceTicket | null>(null)
   const [error, setError] = useState('')
+  useEffect(() => {
+    if (initialTicketNumber && initialAccessCode) {
+      findTicket(initialTicketNumber, initialAccessCode).then((ticket) => {
+        if (ticket) {
+          setSelectedTicket(ticket)
+        }
+      })
+    }
+  }, [findTicket, initialAccessCode, initialTicketNumber])
 
-  function submitHandler(event: FormEvent<HTMLFormElement>) {
+
+  async function submitHandler(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    const found = findTicket(ticketNumber, accessCode)
+    const found = await findTicket(ticketNumber, accessCode)
 
     if (!found) {
       setSelectedTicket(null)
@@ -51,7 +57,7 @@ export function TrackPage() {
         <SectionHeading
           tag="ТРЕКИНГ РЕМОНТА"
           title="Проверка статуса заявки по номеру и коду доступа"
-          description="Данные берутся из локального хранилища проекта. Для демо доступны заявки ниже в блоке «Последние»."
+          description="Проверка выполняется по данным из API и базы данных."
         />
       </section>
 

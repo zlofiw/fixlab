@@ -10,28 +10,28 @@ import type {
 import { TICKET_STAGES } from './domain'
 
 const DEVICE_BASE: Record<ServiceRequestInput['deviceType'], { diagnostic: number; labor: number; hours: number }> = {
-  smartphone: { diagnostic: 6000, labor: 14000, hours: 8 },
-  laptop: { diagnostic: 9000, labor: 22000, hours: 14 },
-  tablet: { diagnostic: 7500, labor: 17000, hours: 10 },
-  console: { diagnostic: 9500, labor: 24000, hours: 16 },
-  tv: { diagnostic: 12000, labor: 28000, hours: 20 },
-  audio: { diagnostic: 5000, labor: 12000, hours: 7 },
+  smartphone: { diagnostic: 4000, labor: 9000, hours: 6 },
+  laptop: { diagnostic: 6000, labor: 13000, hours: 10 },
+  tablet: { diagnostic: 5000, labor: 10500, hours: 8 },
+  console: { diagnostic: 6500, labor: 14500, hours: 11 },
+  tv: { diagnostic: 8000, labor: 16000, hours: 13 },
+  audio: { diagnostic: 3500, labor: 8000, hours: 5 },
 }
 
 const ISSUE_FACTORS: Record<ServiceRequestInput['issueType'], { complexity: number; parts: number; extraHours: number }> = {
-  screen: { complexity: 2.2, parts: 38000, extraHours: 4 },
-  battery: { complexity: 1.6, parts: 21000, extraHours: 2 },
-  charging: { complexity: 2.1, parts: 24000, extraHours: 3 },
-  water: { complexity: 3.2, parts: 46000, extraHours: 6 },
-  overheat: { complexity: 2.5, parts: 30000, extraHours: 5 },
-  software: { complexity: 1.4, parts: 9000, extraHours: 2 },
-  motherboard: { complexity: 3.6, parts: 62000, extraHours: 9 },
+  screen: { complexity: 2, parts: 22000, extraHours: 3 },
+  battery: { complexity: 1.4, parts: 12000, extraHours: 2 },
+  charging: { complexity: 1.9, parts: 15000, extraHours: 3 },
+  water: { complexity: 2.8, parts: 28000, extraHours: 5 },
+  overheat: { complexity: 2.2, parts: 18000, extraHours: 4 },
+  software: { complexity: 1.3, parts: 5000, extraHours: 2 },
+  motherboard: { complexity: 3.3, parts: 36000, extraHours: 7 },
 }
 
 const URGENCY_FACTORS: Record<ServiceRequestInput['urgency'], { price: number; time: number }> = {
   standard: { price: 1, time: 1 },
-  priority: { price: 1.14, time: 0.72 },
-  express: { price: 1.25, time: 0.55 },
+  priority: { price: 1.1, time: 0.78 },
+  express: { price: 1.18, time: 0.62 },
 }
 
 const STAGE_FRACTIONS = [0, 0.12, 0.3, 0.76, 0.9, 1] as const
@@ -139,13 +139,13 @@ function buildTimeline(createdAt: Date, leadHours: number): ServiceTicket['timel
 function buildNotes(request: ServiceRequestInput): string[] {
   const notes: string[] = []
   if (request.hasWarranty) {
-    notes.push('Warranty coverage is validated after document check.')
+    notes.push('Гарантийный случай подтверждается после проверки документов.')
   }
   if (request.urgency === 'express') {
-    notes.push('Express lane is enabled for this order.')
+    notes.push('Для заказа включен экспресс-режим обслуживания.')
   }
   if (request.issueType === 'water') {
-    notes.push('Water damage cost may change after teardown.')
+    notes.push('При вскрытии после влаги стоимость может быть уточнена.')
   }
   return notes
 }
@@ -211,44 +211,4 @@ export function matchTicket(ticket: ServiceTicket, ticketNumber: string, accessC
     ticket.ticketNumber === sanitizeTicketNumber(ticketNumber) &&
     ticket.accessCode === sanitizeAccessCode(accessCode)
   )
-}
-
-export function seedDemoTickets(): ServiceTicket[] {
-  const now = new Date()
-  const first = createTicket(
-    {
-      customerName: 'Aigerim Nurlankyzy',
-      phone: '+7 (707) 444-55-66',
-      email: 'aigerim@example.kz',
-      deviceType: 'smartphone',
-      brand: 'Samsung',
-      model: 'Galaxy S22',
-      issueType: 'screen',
-      issueDetails: 'Touch input does not work after a drop.',
-      urgency: 'standard',
-      hasWarranty: true,
-      repeatCustomer: false,
-    },
-    2,
-    new Date(now.getTime() - 12 * 60 * 60 * 1000),
-  )
-  const second = createTicket(
-    {
-      customerName: 'Alikhan Seitov',
-      phone: '+7 (701) 111-22-33',
-      email: 'alikhan@example.kz',
-      deviceType: 'laptop',
-      brand: 'Dell',
-      model: 'Latitude 7420',
-      issueType: 'overheat',
-      issueDetails: 'Fan noise and throttling under load.',
-      urgency: 'priority',
-      hasWarranty: false,
-      repeatCustomer: true,
-    },
-    4,
-    new Date(now.getTime() - 30 * 60 * 60 * 1000),
-  )
-
-  return [first, second]
 }

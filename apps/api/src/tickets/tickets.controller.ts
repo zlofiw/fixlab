@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common'
+import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common'
+import { AuthGuard } from '../auth/auth.guard'
 import type { CreateTicketDto, UpdateTicketStageDto } from './types'
 import { TicketsService } from './tickets.service'
 
@@ -17,6 +18,7 @@ export class TicketsController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard)
   getById(@Param('id') id: string) {
     return this.ticketsService.getById(id)
   }
@@ -27,6 +29,7 @@ export class TicketsController {
   }
 
   @Patch(':id/stage')
+  @UseGuards(AuthGuard)
   updateStage(@Param('id') id: string, @Body() body: UpdateTicketStageDto) {
     return this.ticketsService.updateStage(id, body?.stage)
   }
