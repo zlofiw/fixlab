@@ -67,6 +67,7 @@ export function NewRequestPage() {
       return
     }
 
+<<<<<<< HEAD
     setCreatedTicket(null)
     setSubmitting(true)
     try {
@@ -87,6 +88,20 @@ export function NewRequestPage() {
     } finally {
       setSubmitting(false)
     }
+=======
+    const ticket = await createRequest({
+      ...form,
+      customerName: form.customerName.trim(),
+      brand: form.brand.trim(),
+      model: form.model.trim(),
+      issueDetails: form.issueDetails.trim(),
+      email: form.email.trim(),
+    })
+
+    setCreatedTicket(ticket)
+    setError('')
+    setForm(defaultForm)
+>>>>>>> 4a6a20737d9270cb58508fd898656fc41197ed01
   }
 
   return (

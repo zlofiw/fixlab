@@ -1,4 +1,4 @@
-﻿import type { ServiceRequestInput, ServiceTicket, TicketStage } from '../types/domain.ts'
+﻿import type { AdminSummary, ServiceRequestInput, ServiceTicket, TicketStage } from '../types/domain.ts'
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '')
 
@@ -83,7 +83,11 @@ export const ticketsApi = {
     requestJson<ServiceTicket>(
       `/api/tickets/lookup?ticketNumber=${encodeURIComponent(ticketNumber)}&accessCode=${encodeURIComponent(accessCode)}`,
     ),
+<<<<<<< HEAD
   adminSummary: () => requestJson<AdminSummaryPayload>('/api/admin/summary'),
+=======
+  adminSummary: () => requestJson<AdminSummary>('/api/admin/summary'),
+>>>>>>> 4a6a20737d9270cb58508fd898656fc41197ed01
   health: () => requestJson('/api/health'),
   authMe: () => requestJson<AdminAuthPayload>('/api/auth/me'),
   authLogin: (username: string, password: string) =>

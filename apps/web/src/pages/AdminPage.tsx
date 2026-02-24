@@ -22,6 +22,7 @@ const DATA_SOURCE_LABELS = {
 } as const
 
 export function AdminPage() {
+<<<<<<< HEAD
   const {
     tickets,
     loading,
@@ -42,11 +43,18 @@ export function AdminPage() {
   const [summary, setSummary] = useState<AdminSummaryPayload | null>(null)
   const [summaryLoading, setSummaryLoading] = useState(false)
 
+=======
+  const { tickets, updateTicketStage, syncing, dataSource, errorMessage, refreshTickets } = useTickets()
+>>>>>>> 4a6a20737d9270cb58508fd898656fc41197ed01
   const [search, setSearch] = useState('')
   const deferredSearch = useDeferredValue(search)
   const [stageFilter, setStageFilter] = useState<StageFilter>('all')
   const [selectedTicketId, setSelectedTicketId] = useState('')
+<<<<<<< HEAD
   const [updatingStage, setUpdatingStage] = useState<TicketStage | null>(null)
+=======
+  const [busyStage, setBusyStage] = useState<TicketStage | null>(null)
+>>>>>>> 4a6a20737d9270cb58508fd898656fc41197ed01
 
   const entries = useMemo(
     () =>
@@ -127,10 +135,10 @@ export function AdminPage() {
       ready: stageCounts.ready,
       express,
       totalAmount,
-      stageCounts,
     }
   }, [entries])
 
+<<<<<<< HEAD
   const stats = summary ?? localStats
 
   useEffect(() => {
@@ -382,10 +390,47 @@ export function AdminPage() {
             <img src={COMPONENT_CLOSEUP_MEDIA.url} alt={COMPONENT_CLOSEUP_MEDIA.alt} className="h-full min-h-[18rem] w-full object-cover" loading="lazy" decoding="async" />
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent" />
           </div>
+=======
+  async function applyStage(ticket: ServiceTicket, stage: TicketStage) {
+    setBusyStage(stage)
+    try {
+      await updateTicketStage(ticket.id, stage)
+    } finally {
+      setBusyStage(null)
+    }
+  }
+
+  return (
+    <div className="space-y-8 pb-6 pt-6 md:space-y-10 md:pt-10">
+      <section className="card-surface rounded-4xl p-6 md:p-10">
+        <SectionHeading
+          tag="ADMIN"
+          title="Панель управления заявками"
+          description="Просмотр очереди, фильтрация заказов и ручное управление этапами ремонта."
+        />
+        <div className="mt-4 flex flex-wrap items-center gap-2 text-xs font-semibold">
+          <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-slate-700">
+            Источник: {dataSource}
+          </span>
+          {syncing ? (
+            <span className="rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1 text-cyan-800">Синхронизация…</span>
+          ) : null}
+          {errorMessage ? (
+            <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-amber-800">{errorMessage}</span>
+          ) : null}
+          <button
+            type="button"
+            onClick={() => void refreshTickets()}
+            className="rounded-full border border-slate-200 bg-white px-3 py-1 text-slate-700 transition hover:border-cyan-300 hover:text-cyan-800"
+          >
+            Обновить данные
+          </button>
+>>>>>>> 4a6a20737d9270cb58508fd898656fc41197ed01
         </div>
       </section>
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+<<<<<<< HEAD
         <article className="metric-card rounded-3xl p-4">
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Всего</p>
           <p className="mt-2 font-display text-3xl font-bold text-slate-950">{stats.total}</p>
@@ -406,6 +451,16 @@ export function AdminPage() {
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Портфель</p>
           <p className="mt-2 font-display text-lg font-bold text-slate-950">{formatMoney(stats.totalAmount)}</p>
           <p className="mt-2 text-xs font-semibold text-slate-500">Серверная сводка: {summary ? 'да' : 'нет'}</p>
+=======
+        <article className="card-surface rounded-3xl p-5"><p className="text-xs font-bold tracking-wide text-slate-500">Всего</p><p className="mt-2 font-display text-3xl font-bold text-slate-900">{stats.total}</p></article>
+        <article className="card-surface rounded-3xl p-5"><p className="text-xs font-bold tracking-wide text-slate-500">Активные</p><p className="mt-2 font-display text-3xl font-bold text-cyan-900">{stats.active}</p></article>
+        <article className="card-surface rounded-3xl p-5"><p className="text-xs font-bold tracking-wide text-slate-500">Готово</p><p className="mt-2 font-display text-3xl font-bold text-emerald-900">{stats.ready}</p></article>
+        <article className="card-surface rounded-3xl p-5"><p className="text-xs font-bold tracking-wide text-slate-500">Экспресс</p><p className="mt-2 font-display text-3xl font-bold text-amber-900">{stats.express}</p></article>
+        <article className="card-surface rounded-3xl p-5">
+          <p className="text-xs font-bold tracking-wide text-slate-500">Портфель</p>
+          <p className="mt-2 font-display text-2xl font-bold text-slate-900">{formatMoney(stats.totalAmount)}</p>
+          <p className="mt-2 text-xs font-semibold text-slate-500">Создано сегодня: {stats.todayCreated}</p>
+>>>>>>> 4a6a20737d9270cb58508fd898656fc41197ed01
         </article>
       </section>
 
@@ -434,6 +489,7 @@ export function AdminPage() {
           </div>
 
           <div className="mt-4 grid gap-3">
+<<<<<<< HEAD
             <input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
@@ -463,16 +519,26 @@ export function AdminPage() {
                       : 'rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50'
                   }
                 >
+=======
+            <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Поиск по номеру, клиенту, устройству" className="field-base rounded-2xl px-4 py-3 text-sm font-semibold" />
+            <div className="flex flex-wrap gap-2">
+              <button type="button" onClick={() => setStageFilter('all')} className={stageFilter === 'all' ? 'chip-active' : 'chip-muted'}>Все ({entries.length})</button>
+              {TICKET_STAGE_ORDER.map((stage) => (
+                <button key={stage} type="button" onClick={() => setStageFilter(stage)} className={stageFilter === stage ? 'chip-active' : 'chip-muted'}>
+>>>>>>> 4a6a20737d9270cb58508fd898656fc41197ed01
                   {STAGE_LABELS[stage]}
                 </button>
               ))}
             </div>
-          </div>
 
+<<<<<<< HEAD
           <div className="mt-5 space-y-3">
             {loading ? (
               <p className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-600">Загрузка очереди...</p>
             ) : filtered.length > 0 ? (
+=======
+            {filtered.length > 0 ? (
+>>>>>>> 4a6a20737d9270cb58508fd898656fc41197ed01
               filtered.map(({ ticket, snapshot }) => (
                 <button
                   key={ticket.id}
@@ -480,23 +546,31 @@ export function AdminPage() {
                   onClick={() => setSelectedTicketId(ticket.id)}
                   className={
                     ticket.id === selectedTicketId
+<<<<<<< HEAD
                       ? 'w-full rounded-3xl border border-cyan-200 bg-[linear-gradient(180deg,rgba(236,254,255,0.95),rgba(236,254,255,0.7))] px-4 py-4 text-left shadow-[0_14px_28px_rgba(34,211,238,0.1)]'
                       : 'w-full rounded-3xl border border-slate-200 bg-white px-4 py-4 text-left transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_14px_28px_rgba(15,23,42,0.08)]'
+=======
+                      ? 'rounded-3xl border border-cyan-200 bg-cyan-50 px-4 py-4 text-left'
+                      : 'rounded-3xl border border-slate-200 bg-white px-4 py-4 text-left'
+>>>>>>> 4a6a20737d9270cb58508fd898656fc41197ed01
                   }
                 >
-                  <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-start justify-between gap-3">
                     <div>
+<<<<<<< HEAD
                       <p className="text-sm font-bold text-slate-950">{ticket.ticketNumber}</p>
                       <p className="text-xs font-medium text-slate-500">
                         {ticket.request.customerName} · {ticket.request.phone}
                       </p>
+=======
+                      <p className="text-sm font-bold text-slate-900">{ticket.ticketNumber}</p>
+                      <p className="text-xs font-medium text-slate-500">{ticket.request.customerName} · {ticket.request.phone}</p>
+>>>>>>> 4a6a20737d9270cb58508fd898656fc41197ed01
                     </div>
                     <StatusPill stage={snapshot.stage} label={snapshot.stageLabel} />
                   </div>
                   <div className="mt-3 grid gap-1 text-xs font-semibold text-slate-600 sm:grid-cols-2">
-                    <p>
-                      {ticket.request.brand} {ticket.request.model}
-                    </p>
+                    <p>{ticket.request.brand} {ticket.request.model}</p>
                     <p>{formatMoney(ticket.estimate.pricing.total)}</p>
                     <p>{URGENCY_LABELS[ticket.request.urgency]}</p>
                     <p>{formatDateTime(ticket.createdAt)}</p>
@@ -504,7 +578,11 @@ export function AdminPage() {
                 </button>
               ))
             ) : (
+<<<<<<< HEAD
               <p className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-600">Заявки по текущим фильтрам не найдены.</p>
+=======
+              <p className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-600">Заявки не найдены.</p>
+>>>>>>> 4a6a20737d9270cb58508fd898656fc41197ed01
             )}
           </div>
         </article>
@@ -515,6 +593,7 @@ export function AdminPage() {
             <div className="mt-5 space-y-5">
               <div className="rounded-3xl border border-slate-200 bg-white/95 p-5 shadow-[0_12px_26px_rgba(15,23,42,0.06)]">
                 <div className="flex flex-wrap items-center justify-between gap-3">
+<<<<<<< HEAD
                   <div>
                     <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Заявка</p>
                     <p className="mt-1 text-lg font-extrabold text-slate-950">{selectedTicket.ticketNumber}</p>
@@ -536,6 +615,14 @@ export function AdminPage() {
                 <p className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-700">
                   {selectedTicket.request.issueDetails}
                 </p>
+=======
+                  <div><p className="text-xs font-bold tracking-wide text-slate-500">Заказ</p><p className="mt-1 text-lg font-extrabold text-slate-900">{selectedTicket.ticketNumber}</p></div>
+                  <StatusPill stage={selectedSnapshot.stage} label={selectedSnapshot.stageLabel} />
+                </div>
+                <div className="mt-4 grid gap-2 text-sm font-medium text-slate-700 sm:grid-cols-2">
+                  <p>Клиент: {selectedTicket.request.customerName}</p><p>Телефон: {selectedTicket.request.phone}</p><p>Устройство: {selectedTicket.request.brand} {selectedTicket.request.model}</p><p>Тип: {selectedTicket.request.deviceType}</p><p>План выдачи: {formatDateTime(selectedTicket.estimate.promiseDate)}</p><p>Сумма: {formatMoney(selectedTicket.estimate.pricing.total)}</p>
+                </div>
+>>>>>>> 4a6a20737d9270cb58508fd898656fc41197ed01
               </div>
 
               <div className="rounded-3xl border border-slate-200 bg-white/95 p-5 shadow-[0_12px_26px_rgba(15,23,42,0.06)]">
@@ -546,19 +633,24 @@ export function AdminPage() {
                       key={stage}
                       type="button"
                       onClick={() => void applyStage(selectedTicket, stage)}
+<<<<<<< HEAD
                       disabled={updatingStage !== null}
+=======
+                      disabled={busyStage !== null}
+>>>>>>> 4a6a20737d9270cb58508fd898656fc41197ed01
                       className={
                         selectedSnapshot.stage === stage
                           ? 'rounded-2xl border border-cyan-200 bg-cyan-100 px-4 py-3 text-left text-sm font-bold text-cyan-900 shadow-[0_8px_18px_rgba(34,211,238,0.14)] disabled:opacity-70'
                           : 'rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left text-sm font-bold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 disabled:opacity-70'
                       }
                     >
-                      {STAGE_LABELS[stage]}
+                      {busyStage === stage ? 'Обновление…' : STAGE_LABELS[stage]}
                     </button>
                   ))}
                 </div>
                 {updatingStage ? <p className="mt-3 text-xs font-semibold text-slate-500">Обновление этапа...</p> : null}
               </div>
+<<<<<<< HEAD
 
               <div className="rounded-3xl border border-slate-200 bg-white/95 p-5 shadow-[0_12px_26px_rgba(15,23,42,0.06)]">
                 <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Плановый таймлайн</p>
@@ -583,6 +675,11 @@ export function AdminPage() {
             <p className="mt-4 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-600">
               Выберите заявку слева, чтобы посмотреть детали и изменить этап ремонта.
             </p>
+=======
+            </div>
+          ) : (
+            <p className="mt-4 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-600">Выберите заявку слева.</p>
+>>>>>>> 4a6a20737d9270cb58508fd898656fc41197ed01
           )}
         </article>
       </section>

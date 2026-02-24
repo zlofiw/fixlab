@@ -101,6 +101,34 @@ img {
   background-size: 18px 18px, 100% 100%;
 }
 
+
+
+.card-surface {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(248, 250, 252, 0.88));
+  border: 1px solid rgba(203, 213, 225, 0.85);
+  box-shadow: 0 20px 45px -34px rgba(15, 23, 42, 0.28);
+}
+
+.chip-active {
+  border: 1px solid rgba(8, 145, 178, 0.28);
+  background: rgba(236, 254, 255, 0.95);
+  color: rgb(14 116 144);
+  border-radius: 999px;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.chip-muted {
+  border: 1px solid rgba(203, 213, 225, 0.8);
+  background: rgba(255, 255, 255, 0.95);
+  color: rgb(71 85 105);
+  border-radius: 999px;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
 .panel {
   position: relative;
   background: color-mix(in oklab, white 88%, #dcecf3 12%);
