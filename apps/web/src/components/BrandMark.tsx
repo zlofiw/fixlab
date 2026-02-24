@@ -11,7 +11,7 @@ export function BrandMark({ compact = false }: { compact?: boolean }) {
         <span className="flex flex-col leading-none">
           <span className="font-display text-xl font-bold tracking-tight text-slate-950">FixLab</span>
           <span className="mt-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-            Device Repair Studio
+            Сервисный центр электроники
           </span>
         </span>
       )}

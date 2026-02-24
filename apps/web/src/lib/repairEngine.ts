@@ -205,13 +205,13 @@ export function createTicket(
   const notes: string[] = []
 
   if (request.hasWarranty) {
-    notes.push('Warranty coverage is verified after diagnostics and document check.')
+    notes.push('Гарантийное покрытие подтверждается после диагностики и проверки документов.')
   }
   if (request.urgency === 'express') {
-    notes.push('Express lane enabled: diagnostics starts outside the standard queue.')
+    notes.push('Включена экспресс-линия: диагностика запускается вне общей очереди.')
   }
   if (request.issueType === 'water') {
-    notes.push('Liquid damage jobs can change after internal teardown and corrosion inspection.')
+    notes.push('После попадания жидкости итоговая стоимость может измениться после вскрытия и осмотра коррозии.')
   }
 
   return {

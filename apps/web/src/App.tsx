@@ -13,7 +13,7 @@ function PageFallback() {
   return (
     <div className="grid min-h-[40vh] place-items-center py-10">
       <div className="panel w-full max-w-xl rounded-3xl p-6 text-center">
-        <p className="text-sm font-semibold text-slate-600">Loading workspace...</p>
+        <p className="text-sm font-semibold text-slate-600">Загрузка раздела...</p>
       </div>
     </div>
   )
@@ -38,3 +38,4 @@ function App() {
 }
 
 export default App
+

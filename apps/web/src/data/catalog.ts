@@ -1,10 +1,18 @@
-﻿import type { DeviceCatalogItem, IssueCatalogItem, TicketStage, UrgencyPolicy } from '../types/domain.ts'
+﻿import type {
+  DeviceCatalogItem,
+  DeviceType,
+  IssueCatalogItem,
+  IssueType,
+  TicketStage,
+  UrgencyPolicy,
+  UrgencyType,
+} from '../types/domain.ts'
 
 export const DEVICE_CATALOG: DeviceCatalogItem[] = [
   {
     id: 'smartphone',
-    label: 'Smartphones',
-    categoryNote: 'Display, charging ports, battery modules, cameras and board-level diagnostics.',
+    label: 'Смартфоны',
+    categoryNote: 'Экран, разъемы зарядки, аккумулятор, камеры и диагностика платы.',
     baseDiagnosticFee: 6000,
     baseLaborRate: 14000,
     baseHours: 8,
@@ -12,8 +20,8 @@ export const DEVICE_CATALOG: DeviceCatalogItem[] = [
   },
   {
     id: 'laptop',
-    label: 'Laptops',
-    categoryNote: 'Cooling systems, keyboards, SSD replacement, motherboard repair and power rails.',
+    label: 'Ноутбуки',
+    categoryNote: 'Система охлаждения, клавиатура, SSD, питание и компонентный ремонт.',
     baseDiagnosticFee: 9000,
     baseLaborRate: 22000,
     baseHours: 14,
@@ -21,8 +29,8 @@ export const DEVICE_CATALOG: DeviceCatalogItem[] = [
   },
   {
     id: 'tablet',
-    label: 'Tablets',
-    categoryNote: 'Touch layers, charging controllers, cameras, audio ICs and frame alignment.',
+    label: 'Планшеты',
+    categoryNote: 'Тачскрин, контроллеры питания, камеры, аудио и восстановление корпуса.',
     baseDiagnosticFee: 7500,
     baseLaborRate: 17000,
     baseHours: 10,
@@ -30,8 +38,8 @@ export const DEVICE_CATALOG: DeviceCatalogItem[] = [
   },
   {
     id: 'console',
-    label: 'Game Consoles',
-    categoryNote: 'HDMI faults, overheating, storage upgrades and board-level recovery after shorts.',
+    label: 'Игровые консоли',
+    categoryNote: 'HDMI, перегрев, накопители и восстановление после коротких замыканий.',
     baseDiagnosticFee: 9500,
     baseLaborRate: 24000,
     baseHours: 16,
@@ -39,8 +47,8 @@ export const DEVICE_CATALOG: DeviceCatalogItem[] = [
   },
   {
     id: 'tv',
-    label: 'TV Panels',
-    categoryNote: 'Backlight strips, power boards, T-CON diagnostics and display chain stability.',
+    label: 'Телевизоры',
+    categoryNote: 'Подсветка, блоки питания, T-CON и цепочка вывода изображения.',
     baseDiagnosticFee: 12000,
     baseLaborRate: 28000,
     baseHours: 20,
@@ -48,8 +56,8 @@ export const DEVICE_CATALOG: DeviceCatalogItem[] = [
   },
   {
     id: 'audio',
-    label: 'Audio Gear',
-    categoryNote: 'Amplifiers, speakers, portable audio boards, batteries and wireless modules.',
+    label: 'Аудиотехника',
+    categoryNote: 'Усилители, колонки, портативная аудиотехника, батареи и беспроводные модули.',
     baseDiagnosticFee: 5000,
     baseLaborRate: 12000,
     baseHours: 7,
@@ -60,49 +68,49 @@ export const DEVICE_CATALOG: DeviceCatalogItem[] = [
 export const ISSUE_CATALOG: IssueCatalogItem[] = [
   {
     id: 'screen',
-    label: 'Broken display or no image',
+    label: 'Разбит экран или нет изображения',
     complexity: 2.2,
     extraHours: 4,
     partsReserve: 38000,
   },
   {
     id: 'battery',
-    label: 'Battery drains fast or does not hold charge',
+    label: 'Быстро разряжается или не держит заряд',
     complexity: 1.6,
     extraHours: 2,
     partsReserve: 21000,
   },
   {
     id: 'charging',
-    label: 'No charging or unstable power input',
+    label: 'Не заряжается или нестабильное питание',
     complexity: 2.1,
     extraHours: 3,
     partsReserve: 24000,
   },
   {
     id: 'water',
-    label: 'Liquid damage',
+    label: 'Попадание жидкости',
     complexity: 3.2,
     extraHours: 6,
     partsReserve: 46000,
   },
   {
     id: 'overheat',
-    label: 'Overheating, noise or throttling',
+    label: 'Перегрев, шум или троттлинг',
     complexity: 2.5,
     extraHours: 5,
     partsReserve: 30000,
   },
   {
     id: 'software',
-    label: 'Software failure or boot loop',
+    label: 'Сбой ПО или циклическая перезагрузка',
     complexity: 1.4,
     extraHours: 2,
     partsReserve: 9000,
   },
   {
     id: 'motherboard',
-    label: 'Motherboard or component-level repair',
+    label: 'Материнская плата или компонентный ремонт',
     complexity: 3.6,
     extraHours: 9,
     partsReserve: 62000,
@@ -112,32 +120,44 @@ export const ISSUE_CATALOG: IssueCatalogItem[] = [
 export const URGENCY_POLICIES: UrgencyPolicy[] = [
   {
     id: 'standard',
-    label: 'Standard',
-    details: 'Scheduled in SLA queue with standard handling and no urgency fee.',
+    label: 'Стандарт',
+    details: 'Очередь по стандартному сроку обслуживания без доплаты за срочность.',
     priceMultiplier: 1,
     timeMultiplier: 1,
   },
   {
     id: 'priority',
-    label: 'Priority',
-    details: 'Moves into the same-day technician queue with accelerated diagnostics.',
+    label: 'Приоритет',
+    details: 'Заявка попадает в ускоренную очередь диагностики в течение дня.',
     priceMultiplier: 1.14,
     timeMultiplier: 0.72,
   },
   {
     id: 'express',
-    label: 'Express',
-    details: 'Dedicated fast lane with minimal queue delay and elevated service rate.',
+    label: 'Экспресс',
+    details: 'Отдельная линия с минимальной очередью и повышенной ставкой.',
     priceMultiplier: 1.25,
     timeMultiplier: 0.55,
   },
 ]
 
 export const STAGE_LABELS: Record<TicketStage, string> = {
-  accepted: 'Accepted',
-  diagnostics: 'Diagnostics',
-  approval: 'Approval',
-  repair: 'Repair',
-  quality: 'Quality Check',
-  ready: 'Ready for Pickup',
+  accepted: 'Заявка принята',
+  diagnostics: 'Диагностика',
+  approval: 'Согласование',
+  repair: 'Ремонт',
+  quality: 'Контроль качества',
+  ready: 'Готово к выдаче',
 }
+
+export const DEVICE_LABELS: Record<DeviceType, string> = Object.fromEntries(
+  DEVICE_CATALOG.map((item) => [item.id, item.label]),
+) as Record<DeviceType, string>
+
+export const ISSUE_LABELS: Record<IssueType, string> = Object.fromEntries(
+  ISSUE_CATALOG.map((item) => [item.id, item.label]),
+) as Record<IssueType, string>
+
+export const URGENCY_LABELS: Record<UrgencyType, string> = Object.fromEntries(
+  URGENCY_POLICIES.map((item) => [item.id, item.label]),
+) as Record<UrgencyType, string>

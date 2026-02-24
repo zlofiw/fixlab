@@ -2,18 +2,25 @@
   "name": "fixlab-monorepo",
   "private": true,
   "version": "1.0.0",
+  "packageManager": "pnpm@10.30.1",
   "workspaces": [
     "apps/web",
     "apps/api"
   ],
   "scripts": {
-    "dev": "npm run dev:web",
-    "dev:web": "npm run dev --workspace @fixlab/web",
-    "dev:api": "npm run start:dev --workspace @fixlab/api",
-    "build": "npm run build:web && npm run build:api",
-    "build:web": "npm run build --workspace @fixlab/web",
-    "build:api": "npm run build --workspace @fixlab/api",
-    "preview:web": "npm run preview --workspace @fixlab/web",
-    "lint:web": "npm run lint --workspace @fixlab/web"
+    "dev": "pnpm run dev:web",
+    "dev:web": "pnpm --filter @fixlab/web dev",
+    "dev:api": "pnpm --filter @fixlab/api start:dev",
+    "build": "pnpm run build:web && pnpm run build:api",
+    "build:web": "pnpm --filter @fixlab/web build",
+    "build:api": "pnpm --filter @fixlab/api build",
+    "preview:web": "pnpm --filter @fixlab/web preview",
+    "lint:web": "pnpm --filter @fixlab/web lint"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@nestjs/core",
+      "esbuild"
+    ]
   }
 }

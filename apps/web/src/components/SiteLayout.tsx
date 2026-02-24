@@ -4,17 +4,17 @@ import { useTickets } from '../context/useTickets.ts'
 import { BrandMark } from './BrandMark.tsx'
 
 const links = [
-  { to: '/', label: 'Overview' },
-  { to: '/services', label: 'Services' },
-  { to: '/request', label: 'Book Repair' },
-  { to: '/track', label: 'Track' },
-  { to: '/admin', label: 'Admin' },
+  { to: '/', label: 'Главная' },
+  { to: '/services', label: 'Услуги и цены' },
+  { to: '/request', label: 'Оформить заявку' },
+  { to: '/track', label: 'Отследить ремонт' },
+  { to: '/admin', label: 'Админ-панель' },
 ]
 
 function navLinkClass(isActive: boolean): string {
   return isActive
-    ? 'rounded-xl bg-slate-950 px-3 py-2 text-sm font-semibold text-white shadow-[0_8px_20px_rgba(15,23,42,0.18)]'
-    : 'rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-white/70 hover:text-slate-950'
+    ? 'rounded-xl border border-slate-900 bg-slate-950 px-3 py-2 text-sm font-semibold text-white shadow-[0_12px_24px_rgba(15,23,42,0.18)]'
+    : 'rounded-xl border border-transparent px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-white/80 hover:bg-white/80 hover:text-slate-950 hover:shadow-[0_8px_18px_rgba(15,23,42,0.08)]'
 }
 
 export function SiteLayout() {
@@ -29,7 +29,7 @@ export function SiteLayout() {
       </div>
 
       <header className="sticky top-0 z-50 px-4 pt-4 md:px-6">
-        <div className="mx-auto flex max-w-7xl flex-col gap-3 rounded-3xl border border-white/70 bg-white/70 p-3 shadow-[0_16px_40px_rgba(15,23,42,0.08)] backdrop-blur-xl">
+        <div className="glass-line soft-ring mx-auto flex max-w-7xl flex-col gap-3 rounded-3xl p-3 shadow-[0_16px_40px_rgba(15,23,42,0.08)]">
           <div className="flex items-center justify-between gap-3">
             <BrandMark />
             <div className="hidden items-center gap-2 lg:flex">
@@ -41,25 +41,25 @@ export function SiteLayout() {
                 }
               >
                 <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                {apiAvailable ? 'API Online' : 'Local Cache'}
+                {apiAvailable ? 'Сервер онлайн' : 'Сервер недоступен'}
               </span>
               <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600">
-                Source: {dataSource}
+                Источник: {dataSource === 'api' ? 'сервер' : 'нет соединения'}
               </span>
               {syncing ? (
                 <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600">
-                  Syncing...
+                  Синхронизация...
                 </span>
               ) : null}
             </div>
             <button
               type="button"
               onClick={() => setOpen((value) => !value)}
-              className="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 lg:hidden"
+              className="inline-flex h-10 items-center justify-center rounded-xl border border-white/80 bg-white/85 px-3 text-sm font-semibold text-slate-700 shadow-[0_8px_18px_rgba(15,23,42,0.06)] lg:hidden"
               aria-expanded={open}
-              aria-label="Toggle navigation"
+              aria-label="Открыть меню"
             >
-              Menu
+              Меню
             </button>
           </div>
 
@@ -74,21 +74,21 @@ export function SiteLayout() {
             <div className="flex items-center gap-2">
               <NavLink
                 to="/track"
-                className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-300"
+                className="rounded-xl border border-slate-200 bg-white/95 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_10px_20px_rgba(15,23,42,0.08)]"
               >
-                Check Status
+                Статус заявки
               </NavLink>
               <NavLink
                 to="/request"
-                className="rounded-xl bg-[linear-gradient(135deg,#12263a,#15847a)] px-4 py-2 text-sm font-semibold text-white shadow-[0_10px_22px_rgba(18,38,58,0.22)]"
+                className="rounded-xl bg-[linear-gradient(135deg,#12263a,#15847a)] px-4 py-2 text-sm font-semibold text-white shadow-[0_12px_24px_rgba(18,38,58,0.22)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_34px_rgba(18,38,58,0.26)]"
               >
-                New Ticket
+                Новая заявка
               </NavLink>
             </div>
           </div>
 
           {open ? (
-            <div className="grid gap-2 border-t border-slate-200/80 pt-3 lg:hidden">
+            <div className="grid gap-2 rounded-2xl border border-white/70 bg-white/55 p-2 lg:hidden">
               <div className="flex flex-wrap items-center gap-2">
                 <span
                   className={
@@ -98,10 +98,10 @@ export function SiteLayout() {
                   }
                 >
                   <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                  {apiAvailable ? 'API Online' : 'Local Cache'}
+                  {apiAvailable ? 'Сервер онлайн' : 'Сервер недоступен'}
                 </span>
                 <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600">
-                  {dataSource}
+                  Источник: {dataSource === 'api' ? 'сервер' : 'нет соединения'}
                 </span>
               </div>
               {links.map((link) => (
@@ -123,14 +123,14 @@ export function SiteLayout() {
         <Outlet />
       </main>
 
-      <footer className="border-t border-slate-200/80 bg-white/70 px-4 py-10 backdrop-blur md:px-6">
-        <div className="mx-auto grid max-w-7xl gap-6 md:grid-cols-[auto_1fr_auto] md:items-center">
+      <footer className="px-4 pb-10 md:px-6">
+        <div className="glass-line soft-ring mx-auto grid max-w-7xl gap-6 rounded-[1.6rem] px-5 py-6 md:grid-cols-[auto_1fr_auto] md:items-center md:px-6">
           <BrandMark compact />
           <p className="text-sm font-medium leading-relaxed text-slate-600">
-            FixLab is a repair-center simulation with operational logic for queueing, pricing ranges, SLA planning and order tracking. The UI is designed as a production-style front desk plus admin workflow.
+            FixLab — учебный, но реалистичный сервисный сайт: прием заявок, расчет диапазона стоимости, срока обслуживания по очереди, трекинг ремонта и управление этапами через сервер.
           </p>
-          <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-            Web + Nest API Monorepo
+          <div className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+            Монопроект: сайт и сервер
           </div>
         </div>
       </footer>

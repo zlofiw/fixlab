@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common'
+import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common'
+import { SessionAuthGuard } from '../auth/session-auth.guard'
 import type { CreateTicketDto, UpdateTicketStageDto } from './types'
 import { TicketsService } from './tickets.service'
 
@@ -27,6 +28,7 @@ export class TicketsController {
   }
 
   @Patch(':id/stage')
+  @UseGuards(SessionAuthGuard)
   updateStage(@Param('id') id: string, @Body() body: UpdateTicketStageDto) {
     return this.ticketsService.updateStage(id, body?.stage)
   }

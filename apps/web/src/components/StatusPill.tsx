@@ -12,7 +12,7 @@ const STAGE_STYLES: Record<TicketStage, string> = {
 export function StatusPill({ stage, label }: { stage: TicketStage; label: string }) {
   return (
     <span
-      className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-bold tracking-wide ${STAGE_STYLES[stage]}`}
+      className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-bold tracking-wide shadow-[0_6px_14px_rgba(15,23,42,0.06)] ${STAGE_STYLES[stage]}`}
     >
       <span className="h-1.5 w-1.5 rounded-full bg-current" />
       {label}

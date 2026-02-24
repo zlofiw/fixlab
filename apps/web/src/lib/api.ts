@@ -8,6 +8,7 @@ function buildUrl(path: string): string {
 
 async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(buildUrl(path), {
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
       ...(init?.headers ?? {}),
@@ -16,17 +17,54 @@ async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
   })
 
   const text = await response.text()
-  const payload = text ? (JSON.parse(text) as unknown) : null
+  let payload: unknown = null
+
+  if (text) {
+    try {
+      payload = JSON.parse(text) as unknown
+    } catch {
+      payload = {
+        message: 'Сервер вернул некорректный ответ',
+      }
+    }
+  }
 
   if (!response.ok) {
     const message =
       payload && typeof payload === 'object' && 'message' in payload
         ? String((payload as { message: unknown }).message)
-        : `HTTP ${response.status}`
+        : `Ошибка сервера (${response.status})`
     throw new Error(message)
   }
 
   return payload as T
+}
+
+export interface AdminAuthPayload {
+  user: {
+    id: string
+    username: string
+  }
+  session: {
+    expiresAt: string
+    lastSeenAt?: string
+  }
+}
+
+export interface AdminSummaryPayload {
+  total: number
+  active: number
+  ready: number
+  express: number
+  totalAmount: number
+  stageCounts: {
+    accepted: number
+    diagnostics: number
+    approval: number
+    repair: number
+    quality: number
+    ready: number
+  }
 }
 
 export const ticketsApi = {
@@ -45,6 +83,16 @@ export const ticketsApi = {
     requestJson<ServiceTicket>(
       `/api/tickets/lookup?ticketNumber=${encodeURIComponent(ticketNumber)}&accessCode=${encodeURIComponent(accessCode)}`,
     ),
-  adminSummary: () => requestJson('/api/admin/summary'),
+  adminSummary: () => requestJson<AdminSummaryPayload>('/api/admin/summary'),
   health: () => requestJson('/api/health'),
+  authMe: () => requestJson<AdminAuthPayload>('/api/auth/me'),
+  authLogin: (username: string, password: string) =>
+    requestJson<AdminAuthPayload>('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ username, password }),
+    }),
+  authLogout: () =>
+    requestJson<{ ok: boolean }>('/api/auth/logout', {
+      method: 'POST',
+    }),
 }

@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto'
+﻿import { randomUUID } from 'node:crypto'
 import { STAGE_LABELS } from './catalog'
 import type {
   RepairEstimate,
@@ -139,13 +139,13 @@ function buildTimeline(createdAt: Date, leadHours: number): ServiceTicket['timel
 function buildNotes(request: ServiceRequestInput): string[] {
   const notes: string[] = []
   if (request.hasWarranty) {
-    notes.push('Warranty coverage is validated after document check.')
+    notes.push('Гарантийное покрытие подтверждается после проверки документов.')
   }
   if (request.urgency === 'express') {
-    notes.push('Express lane is enabled for this order.')
+    notes.push('Для заявки включена экспресс-линия ремонта.')
   }
   if (request.issueType === 'water') {
-    notes.push('Water damage cost may change after teardown.')
+    notes.push('Стоимость после попадания жидкости может измениться после вскрытия устройства.')
   }
   return notes
 }
@@ -213,42 +213,4 @@ export function matchTicket(ticket: ServiceTicket, ticketNumber: string, accessC
   )
 }
 
-export function seedDemoTickets(): ServiceTicket[] {
-  const now = new Date()
-  const first = createTicket(
-    {
-      customerName: 'Aigerim Nurlankyzy',
-      phone: '+7 (707) 444-55-66',
-      email: 'aigerim@example.kz',
-      deviceType: 'smartphone',
-      brand: 'Samsung',
-      model: 'Galaxy S22',
-      issueType: 'screen',
-      issueDetails: 'Touch input does not work after a drop.',
-      urgency: 'standard',
-      hasWarranty: true,
-      repeatCustomer: false,
-    },
-    2,
-    new Date(now.getTime() - 12 * 60 * 60 * 1000),
-  )
-  const second = createTicket(
-    {
-      customerName: 'Alikhan Seitov',
-      phone: '+7 (701) 111-22-33',
-      email: 'alikhan@example.kz',
-      deviceType: 'laptop',
-      brand: 'Dell',
-      model: 'Latitude 7420',
-      issueType: 'overheat',
-      issueDetails: 'Fan noise and throttling under load.',
-      urgency: 'priority',
-      hasWarranty: false,
-      repeatCustomer: true,
-    },
-    4,
-    new Date(now.getTime() - 30 * 60 * 60 * 1000),
-  )
 
-  return [first, second]
-}
