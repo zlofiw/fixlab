@@ -47,7 +47,7 @@ export function NewRequestPage() {
   const activeTicketsCount = tickets.filter((ticket) => !isTicketReady(ticket)).length
   const preview = useMemo(() => estimateRepair(form, activeTicketsCount), [activeTicketsCount, form])
 
-  function submitHandler(event: FormEvent<HTMLFormElement>) {
+  async function submitHandler(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
     if (!form.customerName.trim()) {
@@ -67,7 +67,7 @@ export function NewRequestPage() {
       return
     }
 
-    const ticket = createRequest({
+    const ticket = await createRequest({
       ...form,
       customerName: form.customerName.trim(),
       brand: form.brand.trim(),

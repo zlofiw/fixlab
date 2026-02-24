@@ -10,10 +10,11 @@ import type { ServiceTicket, TicketStage } from '../types/domain.ts'
 type StageFilter = 'all' | TicketStage
 
 export function AdminPage() {
-  const { tickets, updateTicketStage } = useTickets()
+  const { tickets, updateTicketStage, syncing, dataSource, errorMessage, refreshTickets } = useTickets()
   const [search, setSearch] = useState('')
   const [stageFilter, setStageFilter] = useState<StageFilter>('all')
   const [selectedTicketId, setSelectedTicketId] = useState('')
+  const [busyStage, setBusyStage] = useState<TicketStage | null>(null)
 
   const entries = useMemo(
     () =>
@@ -100,12 +101,16 @@ export function AdminPage() {
       express,
       todayCreated,
       totalAmount,
-      stageCounts,
     }
   }, [entries])
 
-  function applyStage(ticket: ServiceTicket, stage: TicketStage) {
-    updateTicketStage(ticket.id, stage)
+  async function applyStage(ticket: ServiceTicket, stage: TicketStage) {
+    setBusyStage(stage)
+    try {
+      await updateTicketStage(ticket.id, stage)
+    } finally {
+      setBusyStage(null)
+    }
   }
 
   return (
@@ -116,33 +121,35 @@ export function AdminPage() {
           title="Панель управления заявками"
           description="Просмотр очереди, фильтрация заказов и ручное управление этапами ремонта."
         />
+        <div className="mt-4 flex flex-wrap items-center gap-2 text-xs font-semibold">
+          <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-slate-700">
+            Источник: {dataSource}
+          </span>
+          {syncing ? (
+            <span className="rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1 text-cyan-800">Синхронизация…</span>
+          ) : null}
+          {errorMessage ? (
+            <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-amber-800">{errorMessage}</span>
+          ) : null}
+          <button
+            type="button"
+            onClick={() => void refreshTickets()}
+            className="rounded-full border border-slate-200 bg-white px-3 py-1 text-slate-700 transition hover:border-cyan-300 hover:text-cyan-800"
+          >
+            Обновить данные
+          </button>
+        </div>
       </section>
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-        <article className="card-surface rounded-3xl p-5">
-          <p className="text-xs font-bold tracking-wide text-slate-500">Всего</p>
-          <p className="mt-2 font-display text-3xl font-bold text-slate-900">{stats.total}</p>
-        </article>
-        <article className="card-surface rounded-3xl p-5">
-          <p className="text-xs font-bold tracking-wide text-slate-500">Активные</p>
-          <p className="mt-2 font-display text-3xl font-bold text-cyan-900">{stats.active}</p>
-        </article>
-        <article className="card-surface rounded-3xl p-5">
-          <p className="text-xs font-bold tracking-wide text-slate-500">Готово</p>
-          <p className="mt-2 font-display text-3xl font-bold text-emerald-900">{stats.ready}</p>
-        </article>
-        <article className="card-surface rounded-3xl p-5">
-          <p className="text-xs font-bold tracking-wide text-slate-500">Экспресс</p>
-          <p className="mt-2 font-display text-3xl font-bold text-amber-900">{stats.express}</p>
-        </article>
+        <article className="card-surface rounded-3xl p-5"><p className="text-xs font-bold tracking-wide text-slate-500">Всего</p><p className="mt-2 font-display text-3xl font-bold text-slate-900">{stats.total}</p></article>
+        <article className="card-surface rounded-3xl p-5"><p className="text-xs font-bold tracking-wide text-slate-500">Активные</p><p className="mt-2 font-display text-3xl font-bold text-cyan-900">{stats.active}</p></article>
+        <article className="card-surface rounded-3xl p-5"><p className="text-xs font-bold tracking-wide text-slate-500">Готово</p><p className="mt-2 font-display text-3xl font-bold text-emerald-900">{stats.ready}</p></article>
+        <article className="card-surface rounded-3xl p-5"><p className="text-xs font-bold tracking-wide text-slate-500">Экспресс</p><p className="mt-2 font-display text-3xl font-bold text-amber-900">{stats.express}</p></article>
         <article className="card-surface rounded-3xl p-5">
           <p className="text-xs font-bold tracking-wide text-slate-500">Портфель</p>
-          <p className="mt-2 font-display text-2xl font-bold text-slate-900">
-            {formatMoney(stats.totalAmount)}
-          </p>
-          <p className="mt-2 text-xs font-semibold text-slate-500">
-            Создано сегодня: {stats.todayCreated}
-          </p>
+          <p className="mt-2 font-display text-2xl font-bold text-slate-900">{formatMoney(stats.totalAmount)}</p>
+          <p className="mt-2 text-xs font-semibold text-slate-500">Создано сегодня: {stats.todayCreated}</p>
         </article>
       </section>
 
@@ -150,42 +157,16 @@ export function AdminPage() {
         <article className="card-surface rounded-4xl p-6 md:p-8">
           <h2 className="font-display text-2xl font-bold text-slate-900">Очередь</h2>
           <div className="mt-4 grid gap-3">
-            <input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Поиск по номеру, клиенту, устройству"
-              className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 outline-none transition-colors placeholder:text-slate-400 focus:border-cyan-500"
-            />
+            <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Поиск по номеру, клиенту, устройству" className="field-base rounded-2xl px-4 py-3 text-sm font-semibold" />
             <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => setStageFilter('all')}
-                className={
-                  stageFilter === 'all'
-                    ? 'rounded-xl border border-cyan-200 bg-cyan-100 px-3 py-2 text-xs font-bold text-cyan-900'
-                    : 'rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700'
-                }
-              >
-                Все
-              </button>
+              <button type="button" onClick={() => setStageFilter('all')} className={stageFilter === 'all' ? 'chip-active' : 'chip-muted'}>Все ({entries.length})</button>
               {TICKET_STAGE_ORDER.map((stage) => (
-                <button
-                  key={stage}
-                  type="button"
-                  onClick={() => setStageFilter(stage)}
-                  className={
-                    stageFilter === stage
-                      ? 'rounded-xl border border-cyan-200 bg-cyan-100 px-3 py-2 text-xs font-bold text-cyan-900'
-                      : 'rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700'
-                  }
-                >
+                <button key={stage} type="button" onClick={() => setStageFilter(stage)} className={stageFilter === stage ? 'chip-active' : 'chip-muted'}>
                   {STAGE_LABELS[stage]}
                 </button>
               ))}
             </div>
-          </div>
 
-          <div className="mt-5 space-y-3">
             {filtered.length > 0 ? (
               filtered.map(({ ticket, snapshot }) => (
                 <button
@@ -194,23 +175,19 @@ export function AdminPage() {
                   onClick={() => setSelectedTicketId(ticket.id)}
                   className={
                     ticket.id === selectedTicketId
-                      ? 'w-full rounded-3xl border border-cyan-200 bg-cyan-50 px-4 py-4 text-left'
-                      : 'w-full rounded-3xl border border-slate-200 bg-white px-4 py-4 text-left'
+                      ? 'rounded-3xl border border-cyan-200 bg-cyan-50 px-4 py-4 text-left'
+                      : 'rounded-3xl border border-slate-200 bg-white px-4 py-4 text-left'
                   }
                 >
-                  <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-start justify-between gap-3">
                     <div>
                       <p className="text-sm font-bold text-slate-900">{ticket.ticketNumber}</p>
-                      <p className="text-xs font-medium text-slate-500">
-                        {ticket.request.customerName} · {ticket.request.phone}
-                      </p>
+                      <p className="text-xs font-medium text-slate-500">{ticket.request.customerName} · {ticket.request.phone}</p>
                     </div>
                     <StatusPill stage={snapshot.stage} label={snapshot.stageLabel} />
                   </div>
                   <div className="mt-3 grid gap-1 text-xs font-semibold text-slate-600 sm:grid-cols-2">
-                    <p>
-                      {ticket.request.brand} {ticket.request.model}
-                    </p>
+                    <p>{ticket.request.brand} {ticket.request.model}</p>
                     <p>{formatMoney(ticket.estimate.pricing.total)}</p>
                     <p>{ticket.request.urgency}</p>
                     <p>{formatDateTime(ticket.createdAt)}</p>
@@ -218,9 +195,7 @@ export function AdminPage() {
                 </button>
               ))
             ) : (
-              <p className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-600">
-                Заявки не найдены.
-              </p>
+              <p className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-600">Заявки не найдены.</p>
             )}
           </div>
         </article>
@@ -231,29 +206,12 @@ export function AdminPage() {
             <div className="mt-4 space-y-5">
               <div className="rounded-3xl border border-slate-200 bg-white p-5">
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <p className="text-xs font-bold tracking-wide text-slate-500">Заказ</p>
-                    <p className="mt-1 text-lg font-extrabold text-slate-900">
-                      {selectedTicket.ticketNumber}
-                    </p>
-                  </div>
+                  <div><p className="text-xs font-bold tracking-wide text-slate-500">Заказ</p><p className="mt-1 text-lg font-extrabold text-slate-900">{selectedTicket.ticketNumber}</p></div>
                   <StatusPill stage={selectedSnapshot.stage} label={selectedSnapshot.stageLabel} />
                 </div>
                 <div className="mt-4 grid gap-2 text-sm font-medium text-slate-700 sm:grid-cols-2">
-                  <p>Клиент: {selectedTicket.request.customerName}</p>
-                  <p>Телефон: {selectedTicket.request.phone}</p>
-                  <p>
-                    Устройство: {selectedTicket.request.brand} {selectedTicket.request.model}
-                  </p>
-                  <p>Тип: {selectedTicket.request.deviceType}</p>
-                  <p>План выдачи: {formatDateTime(selectedTicket.estimate.promiseDate)}</p>
-                  <p>Сумма: {formatMoney(selectedTicket.estimate.pricing.total)}</p>
+                  <p>Клиент: {selectedTicket.request.customerName}</p><p>Телефон: {selectedTicket.request.phone}</p><p>Устройство: {selectedTicket.request.brand} {selectedTicket.request.model}</p><p>Тип: {selectedTicket.request.deviceType}</p><p>План выдачи: {formatDateTime(selectedTicket.estimate.promiseDate)}</p><p>Сумма: {formatMoney(selectedTicket.estimate.pricing.total)}</p>
                 </div>
-                {selectedTicket.request.issueDetails && (
-                  <p className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-700">
-                    {selectedTicket.request.issueDetails}
-                  </p>
-                )}
               </div>
 
               <div className="rounded-3xl border border-slate-200 bg-white p-5">
@@ -263,60 +221,22 @@ export function AdminPage() {
                     <button
                       key={stage}
                       type="button"
-                      onClick={() => applyStage(selectedTicket, stage)}
+                      onClick={() => void applyStage(selectedTicket, stage)}
+                      disabled={busyStage !== null}
                       className={
                         selectedSnapshot.stage === stage
                           ? 'rounded-2xl border border-cyan-200 bg-cyan-100 px-4 py-3 text-left text-sm font-bold text-cyan-900'
                           : 'rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left text-sm font-bold text-slate-700'
                       }
                     >
-                      {STAGE_LABELS[stage]}
+                      {busyStage === stage ? 'Обновление…' : STAGE_LABELS[stage]}
                     </button>
                   ))}
                 </div>
               </div>
-
-              <div className="rounded-3xl border border-slate-200 bg-white p-5">
-                <p className="text-xs font-bold tracking-wide text-slate-500">Плановый таймлайн</p>
-                <div className="mt-3 space-y-2">
-                  {selectedTicket.timeline.map((step) => (
-                    <div
-                      key={step.stage}
-                      className={
-                        step.stage === selectedSnapshot.stage
-                          ? 'rounded-2xl border border-cyan-200 bg-cyan-50 px-4 py-3'
-                          : 'rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3'
-                      }
-                    >
-                      <p className="text-sm font-bold text-slate-900">{step.label}</p>
-                      <p className="mt-1 text-xs font-medium text-slate-500">
-                        {formatDateTime(step.plannedAt)}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {selectedTicket.notes.length > 0 && (
-                <div className="rounded-3xl border border-slate-200 bg-white p-5">
-                  <p className="text-xs font-bold tracking-wide text-slate-500">Примечания</p>
-                  <div className="mt-3 space-y-2">
-                    {selectedTicket.notes.map((note) => (
-                      <p
-                        key={note}
-                        className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-700"
-                      >
-                        {note}
-                      </p>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           ) : (
-            <p className="mt-4 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-600">
-              Выберите заявку слева.
-            </p>
+            <p className="mt-4 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-600">Выберите заявку слева.</p>
           )}
         </article>
       </section>
